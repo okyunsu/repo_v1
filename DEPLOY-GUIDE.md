@@ -60,15 +60,26 @@ REM 7. Ingress 설정
 kubectl apply -f k8s/ingress.yaml
 ```
 
-## 🌐 접속 방법 (8080 포트 통합)
+## 🌐 접속 방법 (포트 분리)
 
-### 🎯 단일 포트 접근 (8080)
-모든 서비스가 **http://localhost:8080** 하나의 포트로 통합되었습니다!
+### 🎯 **분리된 포트 접근**
+프론트엔드와 백엔드가 별도 포트로 분리되어 NextAuth 문제가 해결되었습니다!
 
+### 🎨 **프론트엔드 (3000 포트)**
 ```cmd
 REM 프론트엔드 메인 페이지
-http://localhost:8080
+http://localhost:3000
 
+REM NextAuth 구글 로그인 (정상 작동!)
+http://localhost:3000/api/auth/signin
+
+REM 기타 프론트엔드 페이지들
+http://localhost:3000/dashboard
+http://localhost:3000/profile
+```
+
+### 🚀 **백엔드 API (8080 포트)**
+```cmd
 REM 백엔드 API 문서 (Swagger UI)
 http://localhost:8080/docs
 
@@ -90,10 +101,21 @@ http://localhost:8080/openapi.json
 - **News Service**: `http://localhost:8080/news`
 - **PDF Service**: `http://localhost:8080/pdf`
 
-### 🔍 라우팅 규칙
-- **프론트엔드**: 모든 기본 경로 (`/`, `/about`, `/dashboard` 등)
-- **백엔드 API**: `/api/*`, `/docs`, `/redoc`, `/health`, 각 서비스 경로
-- **Ingress**: 자동으로 적절한 서비스로 라우팅
+### 🔍 **MSA 연결 구조**
+```
+브라우저 → http://localhost:3000 (프론트엔드)
+         ↓ API 호출
+         → http://localhost:8080 (백엔드 Gateway)
+         ↓ 내부 라우팅
+         → 각 마이크로서비스들
+```
+
+### 🔐 **NextAuth 구글 로그인**
+- **로그인 페이지**: `http://localhost:3000/auth/login`
+- **NextAuth API**: `http://localhost:3000/api/auth/*`
+- **구글 OAuth 콜백**: `http://localhost:3000/api/auth/callback/google`
+
+이제 구글 로그인이 정상적으로 작동합니다! ✅
 
 ## 📊 모니터링
 

@@ -94,6 +94,14 @@ kubectl describe deployment <deployment-name> -n lif-system
 kubectl scale deployment lif-frontend --replicas=3 -n lif-system
 kubectl scale deployment lif-app --replicas=5 -n lif-system
 
+# 배포 재시작 (롤링 업데이트)
+kubectl rollout restart deployment/lif-frontend -n lif-system
+kubectl rollout restart deployment/lif-app -n lif-system
+kubectl rollout restart deployment/postgres -n lif-system
+
+# 모든 배포 재시작
+kubectl rollout restart deployment -n lif-system
+
 # 배포 롤아웃 상태 확인
 kubectl rollout status deployment/lif-frontend -n lif-system
 kubectl rollout status deployment/lif-app -n lif-system
@@ -103,6 +111,10 @@ kubectl rollout history deployment/lif-frontend -n lif-system
 
 # 이전 버전으로 롤백
 kubectl rollout undo deployment/lif-frontend -n lif-system
+
+# 재시작 후 파드 준비 상태까지 대기
+kubectl wait --for=condition=ready pod -l app=lif-app -n lif-system --timeout=120s
+kubectl wait --for=condition=ready pod -l app=lif-frontend -n lif-system --timeout=120s
 
 ================================================================================
 5. 📈 HPA (Horizontal Pod Autoscaler) 관리
@@ -358,9 +370,19 @@ kubectl scale deployment lif-app --replicas=5 -n lif-system
 kubectl get pods -n lif-system -l app=postgres
 kubectl logs -f deployment/postgres -n lif-system
 
+# DB 테이블 생성 후 백엔드 재시작 (테이블 생성 후 필수!)
+kubectl rollout restart deployment/lif-app -n lif-system
+kubectl wait --for=condition=ready pod -l app=lif-app -n lif-system --timeout=120s
+
 # 전체 재배포
 kubectl rollout restart deployment/lif-frontend -n lif-system
 kubectl rollout restart deployment/lif-app -n lif-system
+
+# PostgreSQL 파드에 직접 접속하여 테이블 생성
+kubectl exec -it $(kubectl get pods -n lif-system -l app=postgres -o jsonpath='{.items[0].metadata.name}') -n lif-system -- psql -U postgres -d lifdb
+
+# 또는 파드명을 직접 지정
+kubectl exec -it postgres-<pod-id> -n lif-system -- psql -U postgres -d lifdb
 
 ================================================================================
 💡 팁:

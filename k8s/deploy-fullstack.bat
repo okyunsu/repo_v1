@@ -96,8 +96,8 @@ echo ========================================
 echo ✅ Full-Stack 배포 완료!
 echo ========================================
 echo.
-echo 🌐 접속 정보 (모든 서비스가 8080 포트로 통합):
-echo   - 프론트엔드 메인: http://localhost:8080
+echo 🌐 접속 정보 (포트 분리):
+echo   - 프론트엔드: http://localhost:3000
 echo   - 백엔드 API 문서: http://localhost:8080/docs
 echo   - 백엔드 ReDoc: http://localhost:8080/redoc
 echo   - 헬스 체크: http://localhost:8080/health
@@ -109,6 +109,10 @@ echo   - ESG Service: http://localhost:8080/esg
 echo   - Ratio Service: http://localhost:8080/ratio
 echo   - News Service: http://localhost:8080/news
 echo   - PDF Service: http://localhost:8080/pdf
+echo.
+echo 🔐 NextAuth (구글 로그인):
+echo   - NextAuth API: http://localhost:3000/api/auth/*
+echo   - 구글 로그인이 정상 작동합니다!
 echo.
 echo 📊 모니터링:
 echo   kubectl get pods -n lif-system

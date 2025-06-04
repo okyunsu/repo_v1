@@ -10,7 +10,7 @@ spec:
   - host: localhost
     http:
       paths:
-      # API 경로들을 백엔드로 라우팅
+      # 백엔드 API 경로들
       - path: /api
         pathType: Prefix
         backend:
@@ -86,13 +86,5 @@ spec:
         backend:
           service:
             name: lif-gateway
-            port:
-              number: 80
-      # 나머지 모든 경로를 프론트엔드로 라우팅
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: lif-frontend
             port:
               number: 80 
