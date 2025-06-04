@@ -37,7 +37,12 @@ echo.
 echo 🏗️ 네임스페이스 생성 중...
 kubectl apply -f k8s/namespace.yaml
 
-REM 5. PostgreSQL 배포
+REM 5. ConfigMap 생성
+echo.
+echo ⚙️ ConfigMap 생성 중...
+kubectl apply -f k8s/app-configmap.yaml
+
+REM 6. PostgreSQL 배포
 echo.
 echo 🗄️ PostgreSQL 배포 중...
 kubectl apply -f k8s/postgres-configmap.yaml
@@ -54,26 +59,26 @@ if %ERRORLEVEL% neq 0 (
     exit /b 1
 )
 
-REM 6. 백엔드 애플리케이션 배포
+REM 7. 백엔드 애플리케이션 배포
 echo.
 echo 🚀 백엔드 애플리케이션 배포 중...
 kubectl apply -f k8s/app-deployment.yaml
 kubectl apply -f k8s/app-service.yaml
 kubectl apply -f k8s/app-hpa.yaml
 
-REM 7. 프론트엔드 애플리케이션 배포
+REM 8. 프론트엔드 애플리케이션 배포
 echo.
 echo 🎨 프론트엔드 애플리케이션 배포 중...
 kubectl apply -f k8s/frontend-deployment.yaml
 kubectl apply -f k8s/frontend-service.yaml
 kubectl apply -f k8s/frontend-hpa.yaml
 
-REM 8. Ingress 설정
+REM 9. Ingress 설정
 echo.
 echo 🌐 Ingress 설정 중...
 kubectl apply -f k8s/ingress.yaml
 
-REM 9. 배포 상태 확인
+REM 10. 배포 상태 확인
 echo.
 echo 📊 배포 상태 확인 중...
 echo.
@@ -91,16 +96,19 @@ echo ========================================
 echo ✅ Full-Stack 배포 완료!
 echo ========================================
 echo.
-echo 🌐 접속 정보:
-echo   - 백엔드 Gateway: http://localhost:8080
-echo   - FastAPI Docs: http://localhost:8080/docs
-echo   - FastAPI ReDoc: http://localhost:8080/redoc
-echo   - 프론트엔드: http://localhost:30090
+echo 🌐 접속 정보 (모든 서비스가 8080 포트로 통합):
+echo   - 프론트엔드 메인: http://localhost:8080
+echo   - 백엔드 API 문서: http://localhost:8080/docs
+echo   - 백엔드 ReDoc: http://localhost:8080/redoc
+echo   - 헬스 체크: http://localhost:8080/health
 echo.
-echo 🔍 API 연결 확인:
-echo   1. 백엔드: http://localhost:8080/docs (Swagger UI)
-echo   2. 백엔드: http://localhost:8080/redoc (ReDoc)
-echo   3. 프론트엔드: http://localhost:30090
+echo 🔍 각 백엔드 서비스 엔드포인트:
+echo   - Finance Service: http://localhost:8080/finance
+echo   - Stock Service: http://localhost:8080/stock
+echo   - ESG Service: http://localhost:8080/esg
+echo   - Ratio Service: http://localhost:8080/ratio
+echo   - News Service: http://localhost:8080/news
+echo   - PDF Service: http://localhost:8080/pdf
 echo.
 echo 📊 모니터링:
 echo   kubectl get pods -n lif-system

@@ -4,16 +4,95 @@ metadata:
   name: lif-ingress
   namespace: lif-system
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
+    traefik.ingress.kubernetes.io/router.entrypoints: web
 spec:
   rules:
   - host: localhost
     http:
       paths:
-      - path: /
+      # API 경로들을 백엔드로 라우팅
+      - path: /api
         pathType: Prefix
         backend:
           service:
             name: lif-gateway
+            port:
+              number: 80
+      - path: /docs
+        pathType: Prefix
+        backend:
+          service:
+            name: lif-gateway
+            port:
+              number: 80
+      - path: /redoc
+        pathType: Prefix
+        backend:
+          service:
+            name: lif-gateway
+            port:
+              number: 80
+      - path: /openapi.json
+        pathType: Exact
+        backend:
+          service:
+            name: lif-gateway
+            port:
+              number: 80
+      - path: /health
+        pathType: Exact
+        backend:
+          service:
+            name: lif-gateway
+            port:
+              number: 80
+      - path: /finance
+        pathType: Prefix
+        backend:
+          service:
+            name: lif-gateway
+            port:
+              number: 80
+      - path: /stock
+        pathType: Prefix
+        backend:
+          service:
+            name: lif-gateway
+            port:
+              number: 80
+      - path: /esg
+        pathType: Prefix
+        backend:
+          service:
+            name: lif-gateway
+            port:
+              number: 80
+      - path: /ratio
+        pathType: Prefix
+        backend:
+          service:
+            name: lif-gateway
+            port:
+              number: 80
+      - path: /news
+        pathType: Prefix
+        backend:
+          service:
+            name: lif-gateway
+            port:
+              number: 80
+      - path: /pdf
+        pathType: Prefix
+        backend:
+          service:
+            name: lif-gateway
+            port:
+              number: 80
+      # 나머지 모든 경로를 프론트엔드로 라우팅
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: lif-frontend
             port:
               number: 80 

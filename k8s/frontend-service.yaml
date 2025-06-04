@@ -7,11 +7,10 @@ metadata:
     app: lif-frontend
     service: frontend
 spec:
-  type: NodePort
+  type: ClusterIP
   ports:
   - port: 80
     targetPort: 3000
-    nodePort: 30090
     protocol: TCP
     name: http
   selector:

@@ -60,30 +60,29 @@ REM 7. Ingress 설정
 kubectl apply -f k8s/ingress.yaml
 ```
 
-## 🌐 접속 방법
+## 🌐 접속 방법 (8080 포트 통합)
 
-### 백엔드 Gateway (8080 포트)
+### 🎯 단일 포트 접근 (8080)
+모든 서비스가 **http://localhost:8080** 하나의 포트로 통합되었습니다!
+
 ```cmd
-REM 백엔드 Gateway 메인
+REM 프론트엔드 메인 페이지
 http://localhost:8080
+
+REM 백엔드 API 문서 (Swagger UI)
+http://localhost:8080/docs
+
+REM 백엔드 ReDoc
+http://localhost:8080/redoc
 
 REM 헬스 체크
 http://localhost:8080/health
 
-REM FastAPI Docs (Swagger UI)
-http://localhost:8080/docs
-
-REM FastAPI ReDoc
-http://localhost:8080/redoc
+REM OpenAPI JSON 스키마
+http://localhost:8080/openapi.json
 ```
 
-### 프론트엔드 (30090 포트)
-```cmd
-REM 프론트엔드 메인 페이지
-http://localhost:30090
-```
-
-### 각 백엔드 서비스 엔드포인트
+### 🔧 각 백엔드 서비스 엔드포인트
 - **Finance Service**: `http://localhost:8080/finance`
 - **Stock Service**: `http://localhost:8080/stock`
 - **ESG Service**: `http://localhost:8080/esg`
@@ -91,21 +90,10 @@ http://localhost:30090
 - **News Service**: `http://localhost:8080/news`
 - **PDF Service**: `http://localhost:8080/pdf`
 
-### 🔍 API 연결 확인 (FastAPI Docs 활용)
-```cmd
-REM 1. 브라우저에서 Swagger UI 접속
-http://localhost:8080/docs
-
-REM 2. 또는 ReDoc 접속 (더 깔끔한 문서)
-http://localhost:8080/redoc
-
-REM 3. OpenAPI JSON 스키마 확인
-http://localhost:8080/openapi.json
-
-REM 4. 개별 서비스 docs 접근 (포트 포워딩 사용)
-kubectl port-forward -n lif-system svc/lif-finance 8000:8000
-REM 그 후 http://localhost:8000/docs 접속
-```
+### 🔍 라우팅 규칙
+- **프론트엔드**: 모든 기본 경로 (`/`, `/about`, `/dashboard` 등)
+- **백엔드 API**: `/api/*`, `/docs`, `/redoc`, `/health`, 각 서비스 경로
+- **Ingress**: 자동으로 적절한 서비스로 라우팅
 
 ## 📊 모니터링
 
@@ -197,7 +185,10 @@ k3d image import lif-frontend:latest -c modorepo-cluster
 REM 서비스 상태 확인
 kubectl get svc -n lif-system
 
-REM 포트 포워딩으로 직접 접속 테스트
+REM Ingress 상태 확인
+kubectl get ingress -n lif-system
+
+REM 개별 서비스 직접 접속 테스트 (필요시)
 kubectl port-forward -n lif-system svc/lif-frontend 3000:80
 kubectl port-forward -n lif-system svc/lif-gateway 8080:80
 ```
@@ -206,6 +197,10 @@ kubectl port-forward -n lif-system svc/lif-gateway 8080:80
 ```cmd
 REM 프론트엔드에서 백엔드 API 연결 테스트
 kubectl exec -it deployment/lif-frontend -n lif-system -- wget -qO- http://lif-gateway/health
+
+REM Ingress를 통한 연결 테스트
+curl http://localhost:8080/health
+curl http://localhost:8080/docs
 ```
 
 ### Windows 특정 문제
@@ -317,8 +312,9 @@ metrics:
 
 1. **명령 프롬프트(cmd) 사용 권장**: PowerShell보다 cmd에서 더 안정적으로 동작합니다.
 2. **Docker Desktop 확인**: Docker Desktop이 실행 중이고 WSL2 백엔드를 사용하는지 확인하세요.
-3. **방화벽 설정**: Windows 방화벽에서 포트 8080, 30080, 30090이 허용되어 있는지 확인하세요.
+3. **방화벽 설정**: Windows 방화벽에서 포트 8080이 허용되어 있는지 확인하세요.
 4. **경로 구분자**: Windows에서는 `\`를 사용합니다 (예: `k8s\deploy-fullstack.bat`).
+5. **단일 포트 접근**: 모든 서비스가 8080 포트로 통합되어 관리가 간편합니다.
 
 ## 🎯 배포 시나리오
 
