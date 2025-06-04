@@ -1,0 +1,29 @@
+apiVersion: k3d.io/v1alpha4
+kind: Simple
+metadata:
+  name: modorepo-cluster
+servers: 1
+agents: 1
+kubeAPI:
+  host: "0.0.0.0"
+  hostIP: "127.0.0.1"
+  hostPort: "6550"
+image: rancher/k3s:v1.27.4-k3s1
+network: lif-network
+ports:
+  - port: 8080:80
+    nodeFilters:
+      - loadbalancer
+options:
+  k3d:
+    wait: true
+    timeout: "60s"
+    disableLoadbalancer: false
+  k3s:
+    extraArgs:
+      - arg: --disable=traefik
+        nodeFilters:
+          - server:*
+  kubeconfig:
+    updateDefaultKubeconfig: true
+    switchCurrentContext: true 

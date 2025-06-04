@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+  namespace: lif-system
+data:
+  DATABASE_URL: "postgresql+asyncpg://postgres:postgres@postgres:5432/lifdb"
+  FINANCE_SERVICE_URL: "http://localhost:8000"
+  RATIO_SERVICE_URL: "http://localhost:8003"
+  ESG_SERVICE_URL: "http://localhost:8002"
+  STOCK_SERVICE_URL: "http://localhost:8001"
+  GATEWAY_SERVICE_URL: "http://localhost:8080"
+  NEWS_SERVICE_URL: "http://localhost:8004"
+  PDF_SERVICE_URL: "http://localhost:8005"
+  NEXT_PUBLIC_API_URL: "http://localhost:8080"
+  NODE_ENV: "production"
+  NEXT_TELEMETRY_DISABLED: "1"
+  PYTHONUNBUFFERED: "1"
+  ENVIRONMENT: "development" 

@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-config
+  namespace: lif-system
+data:
+  POSTGRES_DB: lifdb
+  POSTGRES_USER: postgres
+  POSTGRES_PASSWORD: postgres 

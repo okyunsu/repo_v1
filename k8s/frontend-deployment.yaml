@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lif-frontend
+  namespace: lif-system
+  labels:
+    app: lif-frontend
+spec:
+  replicas: 2  # 로드 밸런싱을 위한 초기 레플리카 수
+  selector:
+    matchLabels:
+      app: lif-frontend
+  template:
+    metadata:
+      labels:
+        app: lif-frontend
+    spec:
+      containers:
+      - name: lif-frontend
+        image: lif-frontend:latest
+        imagePullPolicy: Never  # k3d에서 로컬 이미지 사용
+        ports:
+        - containerPort: 3000
+          name: http
+        env:
+        - name: NODE_ENV
+          value: "production"
+        - name: NEXT_TELEMETRY_DISABLED
+          value: "1"
+        - name: NEXT_PUBLIC_API_BASE_URL
+          value: "http://localhost:30080"  # 백엔드 NodePort 사용
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "250m"
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 3000
+          initialDelaySeconds: 30
+          periodSeconds: 30
+          timeoutSeconds: 10
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 3000
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3 

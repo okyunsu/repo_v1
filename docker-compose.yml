@@ -1,0 +1,167 @@
+services:
+  gateway:
+    build:
+      context: ./gateway
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    env_file:
+      - ./gateway/.env
+    environment:
+      - FINANCE_SERVICE_URL=http://finance-service:8000
+      - RATIO_SERVICE_URL=http://ratio-service:8003
+      - ESG_SERVICE_URL=http://esg-service:8002
+      - STOCK_SERVICE_URL=http://stock-service:8001
+      - GATEWAY_SERVICE_URL=http://gateway:8080
+    volumes:
+      - ./gateway:/app
+    networks:
+      - lif-network
+    depends_on:
+      - finance-service
+      - ratio-service
+      - esg-service
+      - stock-service
+    
+  finance-service:
+    build:
+      context: ./finance-service
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./finance-service/.env
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://postgres:postgres@postgres:5432/lifdb
+      - GATEWAY_SERVICE_URL=http://gateway:8080
+    volumes:
+      - ./finance-service:/app
+    networks:
+      - lif-network
+    depends_on:
+      - postgres
+
+  ratio-service:
+    build:
+      context: ./ratio-service
+      dockerfile: Dockerfile
+    ports:
+      - "8003:8003"
+    env_file:
+      - ./ratio-service/.env
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://postgres:postgres@postgres:5432/lifdb
+      - GATEWAY_SERVICE_URL=http://gateway:8080
+    volumes:
+      - ./ratio-service:/app
+    networks:
+      - lif-network
+    depends_on:
+      - postgres
+    
+  esg-service:
+    build:
+      context: ./esg-service
+      dockerfile: Dockerfile
+    ports:
+      - "8002:8002"
+    env_file:
+      - ./esg-service/.env
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://postgres:postgres@postgres:5432/lifdb
+      - GATEWAY_SERVICE_URL=http://gateway:8080
+    volumes:
+      - ./esg-service:/app
+    networks:
+      - lif-network
+    depends_on:
+      - postgres
+    
+  stock-service:
+    build:
+      context: ./stock-service
+      dockerfile: Dockerfile
+    ports:
+      - "8001:8001"
+    env_file:
+      - ./stock-service/.env
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://postgres:postgres@postgres:5432/lifdb
+      - GATEWAY_SERVICE_URL=http://gateway:8080
+    volumes:
+      - ./stock-service:/app
+    networks:
+      - lif-network
+    depends_on:
+      - postgres
+    
+  postgres:
+    image: postgres:15
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=lifdb
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - lif-network
+
+  news-service:
+    build: ./news-service
+    ports:
+      - "8004:8004"
+    volumes:
+      - ./news-service/app:/app/app
+      - ./news-service/requirements.txt:/app/requirements.txt
+    env_file:
+      - ./news-service/.env
+    environment:
+      - PYTHONUNBUFFERED=1
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/lifdb
+    restart: always
+    depends_on:
+      - postgres
+    networks:
+      - lif-network
+
+  pdf-service:
+    build: 
+      context: ./pdf-service
+      dockerfile: Dockerfile
+    ports:
+      - "8005:8005"
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://postgres:postgres@postgres:5432/lifdb
+      - ENVIRONMENT=development
+    depends_on:
+      - postgres
+    volumes:
+      - ./pdf-service:/app
+    networks:
+      - lif-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./frontend/.env
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_URL=http://localhost:8080
+      - NEXT_TELEMETRY_DISABLED=1
+    networks:
+      - lif-network
+    depends_on:
+      - gateway
+
+networks:
+  lif-network:
+    driver: bridge
+
+volumes:
+  postgres_data: 

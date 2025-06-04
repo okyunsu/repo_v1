@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lif-app
+  namespace: lif-system
+  labels:
+    app: lif-app
+spec:
+  replicas: 3  # 로드 밸런싱을 위한 초기 레플리카 수
+  selector:
+    matchLabels:
+      app: lif-app
+  template:
+    metadata:
+      labels:
+        app: lif-app
+    spec:
+      containers:
+      - name: lif-app
+        image: lif-app:latest
+        imagePullPolicy: Never  # k3d에서 로컬 이미지 사용
+        ports:
+        - containerPort: 8000
+          name: finance
+        - containerPort: 8001
+          name: stock
+        - containerPort: 8002
+          name: esg
+        - containerPort: 8003
+          name: ratio
+        - containerPort: 8004
+          name: news
+        - containerPort: 8005
+          name: pdf
+        - containerPort: 8080
+          name: gateway
+        envFrom:
+        - configMapRef:
+            name: app-config
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /e/v2/health
+            port: 8080
+          initialDelaySeconds: 60
+          periodSeconds: 30
+          timeoutSeconds: 10
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /e/v2/health
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+      initContainers:
+      - name: wait-for-postgres
+        image: busybox:1.35
+        command: ['sh', '-c', 'until nc -z postgres 5432; do echo waiting for postgres; sleep 2; done;'] 

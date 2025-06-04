@@ -1,0 +1,46 @@
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: lif-frontend-hpa
+  namespace: lif-system
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: lif-frontend
+  minReplicas: 1  # 다운스케일링을 위한 최소 레플리카
+  maxReplicas: 8  # 최대 레플리카 수
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 60  # 프론트엔드는 더 낮은 임계값
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 70
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 300  # 5분 안정화 기간
+      policies:
+      - type: Percent
+        value: 20  # 20%씩 다운스케일
+        periodSeconds: 60
+      - type: Pods
+        value: 1  # 한 번에 최대 1개 파드 제거
+        periodSeconds: 60
+      selectPolicy: Min  # 더 보수적인 다운스케일링
+    scaleUp:
+      stabilizationWindowSeconds: 60
+      policies:
+      - type: Percent
+        value: 100  # 100%까지 빠른 업스케일
+        periodSeconds: 60
+      - type: Pods
+        value: 2  # 한 번에 최대 2개 파드 추가
+        periodSeconds: 60
+      selectPolicy: Max 

@@ -1,0 +1,372 @@
+================================================================================
+                        🚀 Kubernetes 명령어 모음집
+================================================================================
+
+📋 목차:
+1. 기본 클러스터 관리
+2. 파드(Pod) 관리
+3. 서비스(Service) 관리
+4. 배포(Deployment) 관리
+5. HPA (Horizontal Pod Autoscaler) 관리
+6. 네임스페이스 관리
+7. 로그 및 디버깅
+8. 리소스 모니터링
+9. 포트 포워딩
+10. 설정 파일 적용
+11. 정리 및 삭제
+12. k3d 특화 명령어
+
+================================================================================
+1. 📊 기본 클러스터 관리
+================================================================================
+
+# 클러스터 정보 확인
+kubectl cluster-info
+
+# 노드 상태 확인
+kubectl get nodes
+
+# 클러스터 상태 확인
+kubectl get componentstatuses
+
+# 현재 컨텍스트 확인
+kubectl config current-context
+
+# 사용 가능한 컨텍스트 목록
+kubectl config get-contexts
+
+================================================================================
+2. 🏗️ 파드(Pod) 관리
+================================================================================
+
+# 모든 파드 조회
+kubectl get pods
+
+# 특정 네임스페이스의 파드 조회
+kubectl get pods -n lif-system
+
+# 파드 상세 정보
+kubectl describe pod <pod-name> -n lif-system
+
+# 파드 상태를 실시간으로 감시
+kubectl get pods -n lif-system -w
+
+# 특정 라벨의 파드만 조회
+kubectl get pods -n lif-system -l app=lif-frontend
+kubectl get pods -n lif-system -l app=lif-app
+
+# 파드 삭제
+kubectl delete pod <pod-name> -n lif-system
+
+# 모든 파드 삭제 (라벨 기준)
+kubectl delete pods -n lif-system -l app=lif-frontend
+
+================================================================================
+3. 🌐 서비스(Service) 관리
+================================================================================
+
+# 모든 서비스 조회
+kubectl get svc
+
+# 특정 네임스페이스의 서비스 조회
+kubectl get svc -n lif-system
+
+# 서비스 상세 정보
+kubectl describe svc <service-name> -n lif-system
+
+# 서비스 엔드포인트 확인
+kubectl get endpoints -n lif-system
+
+================================================================================
+4. 🚀 배포(Deployment) 관리
+================================================================================
+
+# 모든 배포 조회
+kubectl get deployments
+
+# 특정 네임스페이스의 배포 조회
+kubectl get deployments -n lif-system
+
+# 배포 상세 정보
+kubectl describe deployment <deployment-name> -n lif-system
+
+# 배포 스케일링
+kubectl scale deployment lif-frontend --replicas=3 -n lif-system
+kubectl scale deployment lif-app --replicas=5 -n lif-system
+
+# 배포 롤아웃 상태 확인
+kubectl rollout status deployment/lif-frontend -n lif-system
+kubectl rollout status deployment/lif-app -n lif-system
+
+# 배포 롤아웃 히스토리
+kubectl rollout history deployment/lif-frontend -n lif-system
+
+# 이전 버전으로 롤백
+kubectl rollout undo deployment/lif-frontend -n lif-system
+
+================================================================================
+5. 📈 HPA (Horizontal Pod Autoscaler) 관리
+================================================================================
+
+# HPA 상태 조회
+kubectl get hpa
+
+# 특정 네임스페이스의 HPA 조회
+kubectl get hpa -n lif-system
+
+# HPA 상세 정보
+kubectl describe hpa <hpa-name> -n lif-system
+
+# HPA 실시간 모니터링
+kubectl get hpa -n lif-system -w
+
+# HPA 삭제
+kubectl delete hpa <hpa-name> -n lif-system
+
+================================================================================
+6. 🏷️ 네임스페이스 관리
+================================================================================
+
+# 모든 네임스페이스 조회
+kubectl get namespaces
+
+# 네임스페이스 생성
+kubectl create namespace <namespace-name>
+
+# 네임스페이스 삭제
+kubectl delete namespace <namespace-name>
+
+# 기본 네임스페이스 설정
+kubectl config set-context --current --namespace=lif-system
+
+================================================================================
+7. 📋 로그 및 디버깅
+================================================================================
+
+# 파드 로그 조회
+kubectl logs <pod-name> -n lif-system
+
+# 실시간 로그 스트리밍
+kubectl logs -f <pod-name> -n lif-system
+
+# 배포의 모든 파드 로그
+kubectl logs -f deployment/lif-frontend -n lif-system
+kubectl logs -f deployment/lif-app -n lif-system
+
+# 이전 파드의 로그 (크래시된 경우)
+kubectl logs <pod-name> -n lif-system --previous
+
+# 파드 내부 접속 (디버깅)
+kubectl exec -it <pod-name> -n lif-system -- /bin/bash
+kubectl exec -it <pod-name> -n lif-system -- /bin/sh
+
+# 파드 내부에서 명령 실행
+kubectl exec <pod-name> -n lif-system -- <command>
+
+================================================================================
+8. 📊 리소스 모니터링
+================================================================================
+
+# 모든 리소스 조회
+kubectl get all -n lif-system
+
+# 리소스 사용량 확인 (metrics-server 필요)
+kubectl top nodes
+kubectl top pods -n lif-system
+
+# 이벤트 조회
+kubectl get events -n lif-system
+
+# 이벤트 실시간 감시
+kubectl get events -n lif-system -w
+
+# 리소스 사용량 상세 정보
+kubectl describe node <node-name>
+
+================================================================================
+9. 🔗 포트 포워딩
+================================================================================
+
+# 서비스 포트 포워딩
+kubectl port-forward -n lif-system svc/lif-frontend 3000:80
+kubectl port-forward -n lif-system svc/lif-gateway 8080:80
+
+# 파드 포트 포워딩
+kubectl port-forward -n lif-system <pod-name> 8080:8080
+
+# 개별 서비스 포트 포워딩
+kubectl port-forward -n lif-system svc/lif-finance 8000:8000
+kubectl port-forward -n lif-system svc/lif-stock 8001:8001
+kubectl port-forward -n lif-system svc/lif-esg 8002:8002
+kubectl port-forward -n lif-system svc/lif-ratio 8003:8003
+kubectl port-forward -n lif-system svc/lif-news 8004:8004
+kubectl port-forward -n lif-system svc/lif-pdf 8005:8005
+
+# 백그라운드에서 포트 포워딩 (Windows)
+start /B kubectl port-forward -n lif-system svc/lif-frontend 3000:80
+
+================================================================================
+10. 📄 설정 파일 적용
+================================================================================
+
+# YAML 파일 적용
+kubectl apply -f <filename>.yaml
+
+# 디렉토리의 모든 YAML 파일 적용
+kubectl apply -f k8s/
+
+# 특정 파일들 순서대로 적용
+kubectl apply -f k8s/namespace.yaml
+kubectl apply -f k8s/postgres-configmap.yaml
+kubectl apply -f k8s/postgres-pvc.yaml
+kubectl apply -f k8s/postgres-deployment.yaml
+kubectl apply -f k8s/postgres-service.yaml
+kubectl apply -f k8s/app-deployment.yaml
+kubectl apply -f k8s/app-service.yaml
+kubectl apply -f k8s/app-hpa.yaml
+kubectl apply -f k8s/frontend-deployment.yaml
+kubectl apply -f k8s/frontend-service.yaml
+kubectl apply -f k8s/frontend-hpa.yaml
+kubectl apply -f k8s/ingress.yaml
+
+# 설정 파일 검증 (실제 적용하지 않음)
+kubectl apply -f <filename>.yaml --dry-run=client
+
+# 설정 파일 차이점 확인
+kubectl diff -f <filename>.yaml
+
+================================================================================
+11. 🧹 정리 및 삭제
+================================================================================
+
+# 특정 리소스 삭제
+kubectl delete -f <filename>.yaml
+
+# 네임스페이스의 모든 리소스 삭제
+kubectl delete all --all -n lif-system
+
+# 특정 타입의 모든 리소스 삭제
+kubectl delete deployments --all -n lif-system
+kubectl delete services --all -n lif-system
+kubectl delete hpa --all -n lif-system
+
+# 라벨 기준으로 삭제
+kubectl delete pods -n lif-system -l app=lif-frontend
+
+# 강제 삭제 (응답하지 않는 리소스)
+kubectl delete pod <pod-name> -n lif-system --force --grace-period=0
+
+================================================================================
+12. 🐳 k3d 특화 명령어
+================================================================================
+
+# k3d 클러스터 생성
+k3d cluster create modorepo-cluster -p "8080:80@loadbalancer" --agents 1
+
+# k3d 클러스터 목록
+k3d cluster list
+
+# k3d 클러스터 시작/중지
+k3d cluster start modorepo-cluster
+k3d cluster stop modorepo-cluster
+
+# k3d 클러스터 삭제
+k3d cluster delete modorepo-cluster
+
+# Docker 이미지를 k3d 클러스터로 가져오기
+k3d image import lif-app:latest -c modorepo-cluster
+k3d image import lif-frontend:latest -c modorepo-cluster
+
+# k3d 클러스터 정보
+k3d cluster get modorepo-cluster
+
+================================================================================
+13. 💡 유용한 조합 명령어
+================================================================================
+
+# 파드 상태와 HPA를 함께 모니터링 (PowerShell)
+while ($true) { 
+    Clear-Host
+    Write-Host "=== 파드 상태 ===" -ForegroundColor Green
+    kubectl get pods -n lif-system
+    Write-Host "`n=== HPA 상태 ===" -ForegroundColor Yellow
+    kubectl get hpa -n lif-system
+    Start-Sleep 3
+}
+
+# 파드 개수 확인
+kubectl get pods -n lif-system -l app=lif-frontend --no-headers | find /c /v ""
+kubectl get pods -n lif-system -l app=lif-app --no-headers | find /c /v ""
+
+# 모든 리소스 상태 한 번에 확인
+kubectl get pods,svc,hpa,ingress -n lif-system
+
+# 파드 재시작 (롤링 업데이트)
+kubectl rollout restart deployment/lif-frontend -n lif-system
+kubectl rollout restart deployment/lif-app -n lif-system
+
+# 리소스 사용량과 함께 파드 조회
+kubectl get pods -n lif-system -o wide
+
+# JSON 형태로 상세 정보 출력
+kubectl get pod <pod-name> -n lif-system -o json
+kubectl get svc <service-name> -n lif-system -o yaml
+
+================================================================================
+14. 🔍 트러블슈팅 명령어
+================================================================================
+
+# 파드가 시작되지 않을 때
+kubectl describe pod <pod-name> -n lif-system
+kubectl logs <pod-name> -n lif-system
+kubectl get events -n lif-system --sort-by='.lastTimestamp'
+
+# 서비스 연결 문제 확인
+kubectl get endpoints -n lif-system
+kubectl describe svc <service-name> -n lif-system
+
+# 이미지 풀 문제 확인
+kubectl describe pod <pod-name> -n lif-system | grep -i image
+
+# 리소스 부족 문제 확인
+kubectl describe nodes
+kubectl top nodes
+kubectl top pods -n lif-system
+
+# 네트워크 연결 테스트 (파드 내부에서)
+kubectl exec -it <pod-name> -n lif-system -- wget -qO- http://lif-gateway/health
+kubectl exec -it <pod-name> -n lif-system -- nslookup lif-gateway
+
+================================================================================
+15. 📚 자주 사용하는 프로젝트별 명령어
+================================================================================
+
+# 현재 프로젝트 상태 확인
+kubectl get pods,svc,hpa -n lif-system
+
+# 프론트엔드 관련
+kubectl get pods -n lif-system -l app=lif-frontend
+kubectl logs -f deployment/lif-frontend -n lif-system
+kubectl scale deployment lif-frontend --replicas=3 -n lif-system
+
+# 백엔드 관련
+kubectl get pods -n lif-system -l app=lif-app
+kubectl logs -f deployment/lif-app -n lif-system
+kubectl scale deployment lif-app --replicas=5 -n lif-system
+
+# PostgreSQL 관련
+kubectl get pods -n lif-system -l app=postgres
+kubectl logs -f deployment/postgres -n lif-system
+
+# 전체 재배포
+kubectl rollout restart deployment/lif-frontend -n lif-system
+kubectl rollout restart deployment/lif-app -n lif-system
+
+================================================================================
+💡 팁:
+- 명령어에 --help를 붙이면 상세한 도움말을 볼 수 있습니다
+- kubectl get <resource> -o wide 로 더 많은 정보를 볼 수 있습니다
+- kubectl explain <resource> 로 리소스 스키마를 확인할 수 있습니다
+- alias k=kubectl 로 단축어를 설정할 수 있습니다 (Linux/Mac)
+
+================================================================================ 
